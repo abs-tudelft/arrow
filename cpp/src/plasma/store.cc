@@ -28,6 +28,7 @@
 
 #include "plasma/store.h"
 
+#include <arpa/inet.h>
 #include <assert.h>
 #include <fcntl.h>
 #include <getopt.h>
@@ -176,7 +177,8 @@ uint8_t* PlasmaStore::AllocateMemory(size_t size, bool evict_if_full, int* fd,
     // plasma_client.cc). Note that even though this pointer is 64-byte aligned,
     // it is not guaranteed that the corresponding pointer in the client will be
     // 64-byte aligned, but in practice it often will be.
-    pointer = reinterpret_cast<uint8_t*>(PlasmaAllocator::Memalign(kBlockSize, size));
+    pointer = reinterpret_cast<uint8_t*>(PlasmaAllocator::Memalign(kBlockSize, size, fd, map_size, offset));
+    ARROW_LOG(INFO) << "Object ptr address: " << static_cast<void*>(pointer);
     if (pointer || !evict_if_full) {
       // If we manage to allocate the memory, return the pointer. If we cannot
       // allocate the space, but we are also not allowed to evict anything to
@@ -195,7 +197,7 @@ uint8_t* PlasmaStore::AllocateMemory(size_t size, bool evict_if_full, int* fd,
   }
 
   if (pointer != nullptr) {
-    GetMallocMapinfo(pointer, fd, map_size, offset);
+    // GetMallocMapinfo(pointer, fd, map_size, offset);
     ARROW_CHECK(*fd != -1);
   }
   return pointer;
@@ -487,12 +489,18 @@ void PlasmaStore::ProcessGetRequest(Client* client,
         entry->state = ObjectState::PLASMA_EVICTED;
       }
     } else {
-      // Add a placeholder plasma object to the get request to indicate that the
-      // object is not present. This will be parsed by the client. We set the
-      // data size to -1 to indicate that the object is not present.
-      get_req->objects[object_id].data_size = -1;
-      // Add the get request to the relevant data structures.
-      object_get_requests_[object_id].push_back(get_req);
+      auto remote_entry = GetRemoteObjectTableEntry(&store_info_, object_id);
+      if (remote_entry) {
+        get_req->objects[object_id] = *remote_entry;
+        get_req->num_satisfied += 1;
+      } else {
+        // Add a placeholder plasma object to the get request to indicate that the
+        // object is not present. This will be parsed by the client. We set the
+        // data size to -1 to indicate that the object is not present.
+        get_req->objects[object_id].data_size = -1;
+        // Add the get request to the relevant data structures.
+        object_get_requests_[object_id].push_back(get_req);
+      }
     }
   }
 
@@ -617,6 +625,7 @@ void PlasmaStore::SealObjects(const std::vector<ObjectID>& object_ids,
     object_info.metadata_size = entry->metadata_size;
     object_info.digest = digests[i];
     infos.push_back(object_info);
+    //Send entry to remote plasma stores~~~~~
   }
 
   PushNotifications(infos);
@@ -1155,17 +1164,17 @@ class PlasmaStoreRunner {
                                  external_store));
     plasma_config = store_->GetPlasmaStoreInfo();
 
-    // We are using a single memory-mapped file by mallocing and freeing a single
-    // large amount of space up front. According to the documentation,
-    // dlmalloc might need up to 128*sizeof(size_t) bytes for internal
-    // bookkeeping.
-    void* pointer = plasma::PlasmaAllocator::Memalign(
-        kBlockSize, PlasmaAllocator::GetFootprintLimit() - 256 * sizeof(size_t));
-    ARROW_CHECK(pointer != nullptr);
-    // This will unmap the file, but the next one created will be as large
-    // as this one (this is an implementation detail of dlmalloc).
-    plasma::PlasmaAllocator::Free(
-        pointer, PlasmaAllocator::GetFootprintLimit() - 256 * sizeof(size_t));
+    // // We are using a single memory-mapped file by mallocing and freeing a single
+    // // large amount of space up front. According to the documentation,
+    // // dlmalloc might need up to 128*sizeof(size_t) bytes for internal
+    // // bookkeeping.
+    // void* pointer = plasma::PlasmaAllocator::Memalign(
+    //     kBlockSize, PlasmaAllocator::GetFootprintLimit() - 256 * sizeof(size_t));
+    // ARROW_CHECK(pointer != nullptr);
+    // // This will unmap the file, but the next one created will be as large
+    // // as this one (this is an implementation detail of dlmalloc).
+    // plasma::PlasmaAllocator::Free(
+    //     pointer, PlasmaAllocator::GetFootprintLimit() - 256 * sizeof(size_t));
 
     int socket = BindIpcSock(socket_name, true);
     // TODO(pcm): Check return value.
@@ -1237,6 +1246,8 @@ DEFINE_bool(h, false, "whether to enable hugepage support");
 DEFINE_string(s, "",
               "socket name where the Plasma store will listen for requests, required");
 DEFINE_string(m, "", "amount of memory in bytes to use for Plasma store, required");
+DEFINE_string(v, "", "shared memory location, required");
+DEFINE_string(r, "", "remote store address, optional");
 
 int main(int argc, char* argv[]) {
   ArrowLog::StartArrowLog(argv[0], ArrowLogLevel::ARROW_INFO);
@@ -1249,6 +1260,7 @@ int main(int argc, char* argv[]) {
   // Directory where plasma memory mapped files are stored.
   std::string plasma_directory;
   std::string external_store_endpoint;
+  std::string mem_location;
   bool hugepages_enabled = false;
   int64_t system_memory = -1;
 
@@ -1274,6 +1286,10 @@ int main(int argc, char* argv[]) {
     ARROW_LOG(INFO) << "Allowing the Plasma store to use up to "
                     << static_cast<double>(system_memory) / 1000000000 << "GB of memory.";
   }
+  // Initialize shared memory at specified location
+  mem_location = FLAGS_v;
+  ARROW_LOG(INFO) << "Initializing shared memory at location " << mem_location;
+  plasma::PlasmaAllocator::Init(mem_location);
 
   // Sanity check command line options.
   if (socket_name == nullptr && system_memory == -1) {

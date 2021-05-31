@@ -96,4 +96,13 @@ ObjectTableEntry* GetObjectTableEntry(PlasmaStoreInfo* store_info,
   return it->second.get();
 }
 
+PlasmaObject* GetRemoteObjectTableEntry(PlasmaStoreInfo* store_info,
+                                      const ObjectID& object_id) {
+  auto it = store_info->remote_objects.find(object_id);
+  if (it == store_info->remote_objects.end()) {
+    return NULL;
+  }
+  return it->second.get();
+}
+
 }  // namespace plasma

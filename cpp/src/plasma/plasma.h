@@ -132,6 +132,8 @@ enum class ObjectStatus : int {
 struct PlasmaStoreInfo {
   /// Objects that are in the Plasma store.
   ObjectTable objects;
+
+  std::unordered_map<ObjectID, std::unique_ptr<PlasmaObject>> remote_objects;
   /// Boolean flag indicating whether to start the object store with hugepages
   /// support enabled. Huge pages are substantially larger than normal memory
   /// pages (e.g. 2MB or 1GB instead of 4KB) and using them can reduce
@@ -149,6 +151,9 @@ struct PlasmaStoreInfo {
 /// \return The entry associated with the object_id or NULL if the object_id
 ///         is not present.
 ObjectTableEntry* GetObjectTableEntry(PlasmaStoreInfo* store_info,
+                                      const ObjectID& object_id);
+
+PlasmaObject* GetRemoteObjectTableEntry(PlasmaStoreInfo* store_info,
                                       const ObjectID& object_id);
 
 /// Print a warning if the status is less than zero. This should be used to check
