@@ -60,8 +60,7 @@ class PlasmaStore {
   // TODO: PascalCase PlasmaStore methods.
   PlasmaStore(EventLoop* loop, std::string directory, bool hugepages_enabled,
               const std::string& socket_name,
-              std::shared_ptr<ExternalStore> external_store, 
-              RemoteObjectHandler remote_object_handler);
+              std::shared_ptr<ExternalStore> external_store);
 
   ~PlasmaStore();
 
@@ -219,8 +218,6 @@ class PlasmaStore {
   /// The plasma store information, including the object tables, that is exposed
   /// to the eviction policy.
   PlasmaStoreInfo store_info_;
-
-  RemoteObjectHandler remote_object_handler_;
   /// The state that is managed by the eviction policy.
   QuotaAwarePolicy eviction_policy_;
   /// Input buffer. This is allocated only once to avoid mallocs for every

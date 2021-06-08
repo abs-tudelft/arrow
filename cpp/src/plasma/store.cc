@@ -119,15 +119,12 @@ Client::Client(int fd) : fd(fd), notification_fd(-1) {}
 
 PlasmaStore::PlasmaStore(EventLoop* loop, std::string directory, bool hugepages_enabled,
                          const std::string& socket_name,
-                         std::shared_ptr<ExternalStore> external_store,
-                         RemoteObjectHandler remote_object_handler)
+                         std::shared_ptr<ExternalStore> external_store)
     : loop_(loop),
       eviction_policy_(&store_info_, PlasmaAllocator::GetFootprintLimit()),
       external_store_(external_store) {
   store_info_.directory = directory;
   store_info_.hugepages_enabled = hugepages_enabled;
-  local_objects_ = local_objects;
-  remote_objects_ = remote_objects;
 }
 
 // TODO(pcm): Get rid of this destructor by using RAII to clean up data.
@@ -1161,12 +1158,11 @@ class PlasmaStoreRunner {
   PlasmaStoreRunner() {}
 
   void Start(char* socket_name, std::string directory, bool hugepages_enabled,
-             std::shared_ptr<ExternalStore> external_store,
-             RemoteObjectHandler remote_object_handler) {
+             std::shared_ptr<ExternalStore> external_store) {
     // Create the event loop.
     loop_.reset(new EventLoop);
     store_.reset(new PlasmaStore(loop_.get(), directory, hugepages_enabled, socket_name,
-                                 external_store, remote_object_handler));
+                                 external_store));
     plasma_config = store_->GetPlasmaStoreInfo();
 
     // // We are using a single memory-mapped file by mallocing and freeing a single
@@ -1216,16 +1212,14 @@ void HandleSignal(int signal) {
 }
 
 void StartServer(char* socket_name, std::string plasma_directory, bool hugepages_enabled,
-                 std::shared_ptr<ExternalStore> external_store, 
-                 RemoteObjectHandler remote_object_handler) {
+                 std::shared_ptr<ExternalStore> external_store) {
   // Ignore SIGPIPE signals. If we don't do this, then when we attempt to write
   // to a client that has already died, the store could die.
   signal(SIGPIPE, SIG_IGN);
 
   g_runner.reset(new PlasmaStoreRunner());
   signal(SIGTERM, HandleSignal);
-  g_runner->Start(socket_name, plasma_directory, hugepages_enabled, external_store,
-                  remote_object_handler);
+  g_runner->Start(socket_name, plasma_directory, hugepages_enabled, external_store);
 }
 
 // Function to use (instead of ARROW_LOG(FATAL)) for usage, etc. errors before
@@ -1299,18 +1293,14 @@ int main(int argc, char* argv[]) {
   // Initialize shared memory at specified location.
   mem_location = FLAGS_v;
   remote_mem_location = FLAGS_w;
-  int reserved_volume = FLAGS_r; // Size of memory reserved for sharing object addresses
   ARROW_LOG(INFO) << "Initializing shared memory at location " << mem_location;
   int fd = open(mem_location.c_str(), O_RDWR | O_SYNC);
-  void* base_pointer = mmap(0, plasma::PlasmaAllocator::GetFootprintLimit() + 
-                    reserved_volume, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-  void* store_pointer = static_cast<uint8_t*>(base_pointer) + reserved_volume;
-  plasma::PlasmaAllocator::Init(fd, store_pointer);
+  void* base_pointer = mmap(0, plasma::PlasmaAllocator::GetFootprintLimit(), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+  plasma::PlasmaAllocator::Init(fd, base_pointer);
   ARROW_LOG(INFO) << "Mapping remote memory at location" << remote_mem_location;
   int remote_fd = open(remote_mem_location.c_str(), O_RDWR | O_SYNC);
   void* remote_base_pointer = mmap(0, plasma::PlasmaAllocator::GetFootprintLimit() + 
                     reserved_volume, PROT_READ | PROT_WRITE, MAP_SHARED, remote_fd, 0);
-  RemoteObjectHandler remote_object_handler(base_pointer, remote_base_pointer, reserved_volume);
 
   // Sanity check command line options.
   if (socket_name == nullptr && system_memory == -1) {
@@ -1380,8 +1370,7 @@ int main(int argc, char* argv[]) {
   }
 
   ARROW_LOG(DEBUG) << "starting server listening on " << socket_name;
-  plasma::StartServer(socket_name, plasma_directory, hugepages_enabled, external_store,
-                      remote_object_handler);
+  plasma::StartServer(socket_name, plasma_directory, hugepages_enabled, external_store);
   plasma::g_runner->Shutdown();
   plasma::g_runner = nullptr;
 
