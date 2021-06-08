@@ -36,16 +36,14 @@ void* PlasmaAllocator::base_pointer_ = nullptr;
 std::map<size_t, uint64_t> PlasmaAllocator::available_regions_;
 int64_t PlasmaAllocator::fd_ = 0;
 
-void PlasmaAllocator::Init(const std::string& mem_location) {
-  fd_ = open(mem_location.c_str(), O_RDWR | O_SYNC);
-  // base_pointer_ = mmap(0, footprint_limit_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 0);
-  base_pointer_ = mmap(0, footprint_limit_, PROT_READ | PROT_WRITE, MAP_SHARED, fd_, 524288);
+void PlasmaAllocator::Init(int64_t fd, void* base_pointer) {
+  fd_ = fd;
+  base_pointer_ = base_pointer;
   ARROW_CHECK(base_pointer_);
   MmapRecord& record = mmap_records[base_pointer_];
   record.fd = fd_;
   record.size = footprint_limit_;
   available_regions_.emplace(footprint_limit_, 0);
-  ARROW_LOG(INFO) << "fd: " << fd_;
   ARROW_LOG(INFO) << "Base ptr at address: " << base_pointer_;
   ARROW_LOG(INFO) << "Available memory: " << footprint_limit_ << "bytes";
 }
@@ -59,12 +57,10 @@ void* PlasmaAllocator::Memalign(size_t alignment, size_t bytes, int* fd, int64_t
     return nullptr;
   }
   ARROW_LOG(INFO) << "Allocating " << bytes << " bytes of memory at " << *offset;
-  void* mem = base_pointer_;
-  ARROW_CHECK(mem);
   *map_size = bytes;
   *fd = fd_;
   allocated_ += bytes;
-  return mem;
+  return base_pointer_;
 }
 
 int64_t PlasmaAllocator::FindRegion(size_t bytes) {

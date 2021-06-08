@@ -26,9 +26,10 @@ namespace plasma {
 
 class PlasmaAllocator {
  public:
-  static void Init(const std::string& mem_location);
+  static void Init(int64_t fd, void* base_pointer);
 
   static int64_t FindRegion(size_t bytes);
+  
   /// Allocates size bytes and returns a pointer to the allocated memory. The
   /// memory address will be a multiple of alignment, which must be a power of two.
   ///
