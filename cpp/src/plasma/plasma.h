@@ -152,9 +152,6 @@ struct PlasmaStoreInfo {
 ObjectTableEntry* GetObjectTableEntry(PlasmaStoreInfo* store_info,
                                       const ObjectID& object_id);
 
-PlasmaObject* GetRemoteObjectTableEntry(PlasmaStoreInfo* store_info,
-                                      const ObjectID& object_id);
-
 /// Print a warning if the status is less than zero. This should be used to check
 /// the success of messages sent to plasma clients. We print a warning instead of
 /// failing because the plasma clients are allowed to die. This is used to handle

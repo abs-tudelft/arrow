@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <thread>
 
 #include "plasma/common.h"
 #include "plasma/events.h"
@@ -30,12 +31,15 @@
 #include "plasma/plasma.h"
 #include "plasma/protocol.h"
 #include "plasma/quota_aware_policy.h"
+#include "plasma/rpc/rpc.h"
 
 namespace arrow {
 class Status;
 }  // namespace arrow
 
 namespace plasma {
+
+class RpcClient;
 
 namespace flatbuf {
 struct ObjectInfoT;
@@ -60,7 +64,8 @@ class PlasmaStore {
   // TODO: PascalCase PlasmaStore methods.
   PlasmaStore(EventLoop* loop, std::string directory, bool hugepages_enabled,
               const std::string& socket_name,
-              std::shared_ptr<ExternalStore> external_store);
+              std::shared_ptr<ExternalStore> external_store,
+              const std::string& local_address, const std::string& remote_address);
 
   ~PlasmaStore();
 
@@ -184,6 +189,12 @@ class PlasmaStore {
   void AddToClientObjectIds(const ObjectID& object_id, ObjectTableEntry* entry,
                             Client* client);
 
+  void AddObjectTableEntry(const ObjectID& object_id, int64_t data_size, int64_t metadata_size, 
+                                      uint8_t* pointer, int fd, int64_t map_size, ptrdiff_t offset, 
+                                      int device_num, PlasmaObject* result);
+
+  bool ObjectExists(const ObjectID& object_id);
+
   /// Remove a GetRequest and clean up the relevant data structures.
   ///
   /// \param get_request The GetRequest to remove.
@@ -218,6 +229,12 @@ class PlasmaStore {
   /// The plasma store information, including the object tables, that is exposed
   /// to the eviction policy.
   PlasmaStoreInfo store_info_;
+
+  RpcClient rpc_client_;
+
+  std::thread rpc_thread_;
+  std::mutex mutex_;
+  RpcServiceImpl rpc_service_;
   /// The state that is managed by the eviction policy.
   QuotaAwarePolicy eviction_policy_;
   /// Input buffer. This is allocated only once to avoid mallocs for every

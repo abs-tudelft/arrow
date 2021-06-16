@@ -283,6 +283,8 @@ class ARROW_EXPORT PlasmaClient {
   /// \return The return status.
   Status Disconnect();
 
+  Status MmapRemoteMemory(const std::string& file);
+
   /// Get the current debug string from the plasma store server.
   ///
   /// \return The debug string.

@@ -50,6 +50,9 @@ set(PLASMA_STORE_SRCS
     quota_aware_policy.cc
     plasma_allocator.cc
     store.cc
+    rpc/rpc.cc###
+    rpc/rpc.grpc.pb.cc
+    rpc/rpc.pb.cc###
     thirdparty/ae/ae.c)
 
 set(PLASMA_LINK_LIBS arrow_shared)
@@ -110,10 +113,15 @@ endif()
 
 list(APPEND PLASMA_EXTERNAL_STORE_SOURCES "external_store.cc" "hash_table_store.cc")
 
+include(FindProtobuf)
+find_package(Protobuf REQUIRED)
+include_directories(${PROTOBUF_INCLUDE_DIR})
+find_package(gRPC CONFIG REQUIRED)
+
 # We use static libraries for the plasma-store-server executable so that it can
 # be copied around and used in different locations.
 add_executable(plasma-store-server ${PLASMA_EXTERNAL_STORE_SOURCES} ${PLASMA_STORE_SRCS})
-target_link_libraries(plasma-store-server ${GFLAGS_LIBRARIES})
+target_link_libraries(plasma-store-server ${GFLAGS_LIBRARIES} ${PROTOBUF_LIBRARY} gRPC::grpc++)###
 if(ARROW_BUILD_STATIC)
   target_link_libraries(plasma-store-server plasma_static ${PLASMA_STATIC_LINK_LIBS})
 else()
