@@ -318,7 +318,6 @@ class PlasmaClient::Impl : public std::enable_shared_from_this<PlasmaClient::Imp
 #ifdef PLASMA_CUDA
   arrow::Result<std::shared_ptr<CudaContext>> GetCudaContext(int device_number);
 #endif
-  std::string remote_memory_file_;
   /// File descriptor of the Unix domain socket that connects to the store.
   int store_conn_;
   /// Table of dlmalloc buffer files that have been memory mapped so far. This
@@ -372,8 +371,8 @@ Status PlasmaClient::Impl::MmapRemoteMemory(const std::string& file) {
   int fd = open(file.c_str(), O_RDWR | O_SYNC);
   // Find remote memory file size
   struct stat stat_buf;
-  int rc = fstat(fd, &stat_buf);
-  // Mmap remote memory
+  fstat(fd, &stat_buf);
+  // Mmap remote memory with fd = -1 in accordance with PlasmaStore::ProcessGetRequest
   LookupOrMmap(fd, -1, stat_buf.st_size);
   return Status::OK();
 }

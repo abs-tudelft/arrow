@@ -1347,10 +1347,6 @@ int main(int argc, char* argv[]) {
   void* base_pointer = mmap(0, plasma::PlasmaAllocator::GetFootprintLimit(), 
                             PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
   plasma::PlasmaAllocator::Init(fd, base_pointer);
-  ARROW_LOG(INFO) << "Mapping remote memory at location" << remote_mem_location;
-  int remote_fd = open(remote_mem_location.c_str(), O_RDWR | O_SYNC);
-  void* remote_base_pointer = mmap(0, plasma::PlasmaAllocator::GetFootprintLimit(), 
-                            PROT_READ | PROT_WRITE, MAP_SHARED, remote_fd, 0);
 
   // Sanity check command line options.
   if (socket_name == nullptr && system_memory == -1) {
