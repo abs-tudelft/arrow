@@ -2,8 +2,8 @@ syntax = "proto3";
 
 package plasmaRPC;
 
-message ObjectID {
-  string id = 1;
+message ObjectIDs {
+  repeated string ids = 1;
 }
 
 message PlasmaObject {
@@ -26,6 +26,10 @@ message ObjectDetails {
   }
 }
 
+message ObjectDetailsList {
+  repeated ObjectDetails objects_details = 1;
+}
+
 service RemoteObjectShare {
-  rpc GetObject(ObjectID) returns (ObjectDetails);
+  rpc GetObjects(ObjectIDs) returns (ObjectDetailsList);
 }

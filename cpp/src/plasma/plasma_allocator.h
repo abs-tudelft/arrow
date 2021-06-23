@@ -63,7 +63,7 @@ class PlasmaAllocator {
   static int64_t allocated_;
   static int64_t footprint_limit_;
   static void* base_pointer_;
-  static std::map<uint64_t, size_t> available_regions_;
+  static std::multimap<uint64_t, size_t> available_regions_;
   static int64_t fd_;
 };
 

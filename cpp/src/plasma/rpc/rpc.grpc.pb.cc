@@ -22,7 +22,7 @@
 namespace plasmaRPC {
 
 static const char* RemoteObjectShare_method_names[] = {
-  "/plasmaRPC.RemoteObjectShare/GetObject",
+  "/plasmaRPC.RemoteObjectShare/GetObjects",
 };
 
 std::unique_ptr< RemoteObjectShare::Stub> RemoteObjectShare::NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options) {
@@ -32,28 +32,28 @@ std::unique_ptr< RemoteObjectShare::Stub> RemoteObjectShare::NewStub(const std::
 }
 
 RemoteObjectShare::Stub::Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options)
-  : channel_(channel), rpcmethod_GetObject_(RemoteObjectShare_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
+  : channel_(channel), rpcmethod_GetObjects_(RemoteObjectShare_method_names[0], options.suffix_for_stats(),::grpc::internal::RpcMethod::NORMAL_RPC, channel)
   {}
 
-::grpc::Status RemoteObjectShare::Stub::GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::plasmaRPC::ObjectDetails* response) {
-  return ::grpc::internal::BlockingUnaryCall< ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetObject_, context, request, response);
+::grpc::Status RemoteObjectShare::Stub::GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::plasmaRPC::ObjectDetailsList* response) {
+  return ::grpc::internal::BlockingUnaryCall< ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), rpcmethod_GetObjects_, context, request, response);
 }
 
-void RemoteObjectShare::Stub::experimental_async::GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, std::function<void(::grpc::Status)> f) {
-  ::grpc::internal::CallbackUnaryCall< ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetObject_, context, request, response, std::move(f));
+void RemoteObjectShare::Stub::experimental_async::GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, std::function<void(::grpc::Status)> f) {
+  ::grpc::internal::CallbackUnaryCall< ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetObjects_, context, request, response, std::move(f));
 }
 
-void RemoteObjectShare::Stub::experimental_async::GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
-  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetObject_, context, request, response, reactor);
+void RemoteObjectShare::Stub::experimental_async::GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, ::grpc::experimental::ClientUnaryReactor* reactor) {
+  ::grpc::internal::ClientCallbackUnaryFactory::Create< ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(stub_->channel_.get(), stub_->rpcmethod_GetObjects_, context, request, response, reactor);
 }
 
-::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>* RemoteObjectShare::Stub::PrepareAsyncGetObjectRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) {
-  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::plasmaRPC::ObjectDetails, ::plasmaRPC::ObjectID, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetObject_, context, request);
+::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>* RemoteObjectShare::Stub::PrepareAsyncGetObjectsRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) {
+  return ::grpc::internal::ClientAsyncResponseReaderHelper::Create< ::plasmaRPC::ObjectDetailsList, ::plasmaRPC::ObjectIDs, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(channel_.get(), cq, rpcmethod_GetObjects_, context, request);
 }
 
-::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>* RemoteObjectShare::Stub::AsyncGetObjectRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) {
+::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>* RemoteObjectShare::Stub::AsyncGetObjectsRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) {
   auto* result =
-    this->PrepareAsyncGetObjectRaw(context, request, cq);
+    this->PrepareAsyncGetObjectsRaw(context, request, cq);
   result->StartCall();
   return result;
 }
@@ -62,19 +62,19 @@ RemoteObjectShare::Service::Service() {
   AddMethod(new ::grpc::internal::RpcServiceMethod(
       RemoteObjectShare_method_names[0],
       ::grpc::internal::RpcMethod::NORMAL_RPC,
-      new ::grpc::internal::RpcMethodHandler< RemoteObjectShare::Service, ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
+      new ::grpc::internal::RpcMethodHandler< RemoteObjectShare::Service, ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList, ::grpc::protobuf::MessageLite, ::grpc::protobuf::MessageLite>(
           [](RemoteObjectShare::Service* service,
              ::grpc::ServerContext* ctx,
-             const ::plasmaRPC::ObjectID* req,
-             ::plasmaRPC::ObjectDetails* resp) {
-               return service->GetObject(ctx, req, resp);
+             const ::plasmaRPC::ObjectIDs* req,
+             ::plasmaRPC::ObjectDetailsList* resp) {
+               return service->GetObjects(ctx, req, resp);
              }, this)));
 }
 
 RemoteObjectShare::Service::~Service() {
 }
 
-::grpc::Status RemoteObjectShare::Service::GetObject(::grpc::ServerContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response) {
+::grpc::Status RemoteObjectShare::Service::GetObjects(::grpc::ServerContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response) {
   (void) context;
   (void) request;
   (void) response;

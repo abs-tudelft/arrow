@@ -36,21 +36,21 @@ class RemoteObjectShare final {
   class StubInterface {
    public:
     virtual ~StubInterface() {}
-    virtual ::grpc::Status GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::plasmaRPC::ObjectDetails* response) = 0;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetails>> AsyncGetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetails>>(AsyncGetObjectRaw(context, request, cq));
+    virtual ::grpc::Status GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::plasmaRPC::ObjectDetailsList* response) = 0;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetailsList>> AsyncGetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetailsList>>(AsyncGetObjectsRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetails>> PrepareAsyncGetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetails>>(PrepareAsyncGetObjectRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetailsList>> PrepareAsyncGetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetailsList>>(PrepareAsyncGetObjectsRaw(context, request, cq));
     }
     class experimental_async_interface {
      public:
       virtual ~experimental_async_interface() {}
-      virtual void GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, std::function<void(::grpc::Status)>) = 0;
+      virtual void GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, std::function<void(::grpc::Status)>) = 0;
       #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      virtual void GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, ::grpc::ClientUnaryReactor* reactor) = 0;
+      virtual void GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, ::grpc::ClientUnaryReactor* reactor) = 0;
       #else
-      virtual void GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
+      virtual void GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, ::grpc::experimental::ClientUnaryReactor* reactor) = 0;
       #endif
     };
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
@@ -61,27 +61,27 @@ class RemoteObjectShare final {
     #endif
     virtual class experimental_async_interface* experimental_async() { return nullptr; }
   private:
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetails>* AsyncGetObjectRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) = 0;
-    virtual ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetails>* PrepareAsyncGetObjectRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetailsList>* AsyncGetObjectsRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) = 0;
+    virtual ::grpc::ClientAsyncResponseReaderInterface< ::plasmaRPC::ObjectDetailsList>* PrepareAsyncGetObjectsRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) = 0;
   };
   class Stub final : public StubInterface {
    public:
     Stub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
-    ::grpc::Status GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::plasmaRPC::ObjectDetails* response) override;
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>> AsyncGetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>>(AsyncGetObjectRaw(context, request, cq));
+    ::grpc::Status GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::plasmaRPC::ObjectDetailsList* response) override;
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>> AsyncGetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>>(AsyncGetObjectsRaw(context, request, cq));
     }
-    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>> PrepareAsyncGetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) {
-      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>>(PrepareAsyncGetObjectRaw(context, request, cq));
+    std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>> PrepareAsyncGetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) {
+      return std::unique_ptr< ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>>(PrepareAsyncGetObjectsRaw(context, request, cq));
     }
     class experimental_async final :
       public StubInterface::experimental_async_interface {
      public:
-      void GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, std::function<void(::grpc::Status)>) override;
+      void GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, std::function<void(::grpc::Status)>) override;
       #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-      void GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, ::grpc::ClientUnaryReactor* reactor) override;
+      void GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, ::grpc::ClientUnaryReactor* reactor) override;
       #else
-      void GetObject(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
+      void GetObjects(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response, ::grpc::experimental::ClientUnaryReactor* reactor) override;
       #endif
      private:
       friend class Stub;
@@ -94,9 +94,9 @@ class RemoteObjectShare final {
    private:
     std::shared_ptr< ::grpc::ChannelInterface> channel_;
     class experimental_async async_stub_{this};
-    ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>* AsyncGetObjectRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) override;
-    ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetails>* PrepareAsyncGetObjectRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectID& request, ::grpc::CompletionQueue* cq) override;
-    const ::grpc::internal::RpcMethod rpcmethod_GetObject_;
+    ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>* AsyncGetObjectsRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) override;
+    ::grpc::ClientAsyncResponseReader< ::plasmaRPC::ObjectDetailsList>* PrepareAsyncGetObjectsRaw(::grpc::ClientContext* context, const ::plasmaRPC::ObjectIDs& request, ::grpc::CompletionQueue* cq) override;
+    const ::grpc::internal::RpcMethod rpcmethod_GetObjects_;
   };
   static std::unique_ptr<Stub> NewStub(const std::shared_ptr< ::grpc::ChannelInterface>& channel, const ::grpc::StubOptions& options = ::grpc::StubOptions());
 
@@ -104,124 +104,124 @@ class RemoteObjectShare final {
    public:
     Service();
     virtual ~Service();
-    virtual ::grpc::Status GetObject(::grpc::ServerContext* context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response);
+    virtual ::grpc::Status GetObjects(::grpc::ServerContext* context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response);
   };
   template <class BaseClass>
-  class WithAsyncMethod_GetObject : public BaseClass {
+  class WithAsyncMethod_GetObjects : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithAsyncMethod_GetObject() {
+    WithAsyncMethod_GetObjects() {
       ::grpc::Service::MarkMethodAsync(0);
     }
-    ~WithAsyncMethod_GetObject() override {
+    ~WithAsyncMethod_GetObjects() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetObject(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/) override {
+    ::grpc::Status GetObjects(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetObject(::grpc::ServerContext* context, ::plasmaRPC::ObjectID* request, ::grpc::ServerAsyncResponseWriter< ::plasmaRPC::ObjectDetails>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestGetObjects(::grpc::ServerContext* context, ::plasmaRPC::ObjectIDs* request, ::grpc::ServerAsyncResponseWriter< ::plasmaRPC::ObjectDetailsList>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
-  typedef WithAsyncMethod_GetObject<Service > AsyncService;
+  typedef WithAsyncMethod_GetObjects<Service > AsyncService;
   template <class BaseClass>
-  class ExperimentalWithCallbackMethod_GetObject : public BaseClass {
+  class ExperimentalWithCallbackMethod_GetObjects : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    ExperimentalWithCallbackMethod_GetObject() {
+    ExperimentalWithCallbackMethod_GetObjects() {
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
       ::grpc::Service::
     #else
       ::grpc::Service::experimental().
     #endif
         MarkMethodCallback(0,
-          new ::grpc::internal::CallbackUnaryHandler< ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails>(
+          new ::grpc::internal::CallbackUnaryHandler< ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList>(
             [this](
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
                    ::grpc::CallbackServerContext*
     #else
                    ::grpc::experimental::CallbackServerContext*
     #endif
-                     context, const ::plasmaRPC::ObjectID* request, ::plasmaRPC::ObjectDetails* response) { return this->GetObject(context, request, response); }));}
-    void SetMessageAllocatorFor_GetObject(
-        ::grpc::experimental::MessageAllocator< ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails>* allocator) {
+                     context, const ::plasmaRPC::ObjectIDs* request, ::plasmaRPC::ObjectDetailsList* response) { return this->GetObjects(context, request, response); }));}
+    void SetMessageAllocatorFor_GetObjects(
+        ::grpc::experimental::MessageAllocator< ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList>* allocator) {
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::GetHandler(0);
     #else
       ::grpc::internal::MethodHandler* const handler = ::grpc::Service::experimental().GetHandler(0);
     #endif
-      static_cast<::grpc::internal::CallbackUnaryHandler< ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails>*>(handler)
+      static_cast<::grpc::internal::CallbackUnaryHandler< ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList>*>(handler)
               ->SetMessageAllocator(allocator);
     }
-    ~ExperimentalWithCallbackMethod_GetObject() override {
+    ~ExperimentalWithCallbackMethod_GetObjects() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetObject(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/) override {
+    ::grpc::Status GetObjects(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-    virtual ::grpc::ServerUnaryReactor* GetObject(
-      ::grpc::CallbackServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/)
+    virtual ::grpc::ServerUnaryReactor* GetObjects(
+      ::grpc::CallbackServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/)
     #else
-    virtual ::grpc::experimental::ServerUnaryReactor* GetObject(
-      ::grpc::experimental::CallbackServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/)
+    virtual ::grpc::experimental::ServerUnaryReactor* GetObjects(
+      ::grpc::experimental::CallbackServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/)
     #endif
       { return nullptr; }
   };
   #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-  typedef ExperimentalWithCallbackMethod_GetObject<Service > CallbackService;
+  typedef ExperimentalWithCallbackMethod_GetObjects<Service > CallbackService;
   #endif
 
-  typedef ExperimentalWithCallbackMethod_GetObject<Service > ExperimentalCallbackService;
+  typedef ExperimentalWithCallbackMethod_GetObjects<Service > ExperimentalCallbackService;
   template <class BaseClass>
-  class WithGenericMethod_GetObject : public BaseClass {
+  class WithGenericMethod_GetObjects : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithGenericMethod_GetObject() {
+    WithGenericMethod_GetObjects() {
       ::grpc::Service::MarkMethodGeneric(0);
     }
-    ~WithGenericMethod_GetObject() override {
+    ~WithGenericMethod_GetObjects() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetObject(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/) override {
+    ::grpc::Status GetObjects(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
   };
   template <class BaseClass>
-  class WithRawMethod_GetObject : public BaseClass {
+  class WithRawMethod_GetObjects : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithRawMethod_GetObject() {
+    WithRawMethod_GetObjects() {
       ::grpc::Service::MarkMethodRaw(0);
     }
-    ~WithRawMethod_GetObject() override {
+    ~WithRawMethod_GetObjects() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetObject(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/) override {
+    ::grpc::Status GetObjects(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
-    void RequestGetObject(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
+    void RequestGetObjects(::grpc::ServerContext* context, ::grpc::ByteBuffer* request, ::grpc::ServerAsyncResponseWriter< ::grpc::ByteBuffer>* response, ::grpc::CompletionQueue* new_call_cq, ::grpc::ServerCompletionQueue* notification_cq, void *tag) {
       ::grpc::Service::RequestAsyncUnary(0, context, request, response, new_call_cq, notification_cq, tag);
     }
   };
   template <class BaseClass>
-  class ExperimentalWithRawCallbackMethod_GetObject : public BaseClass {
+  class ExperimentalWithRawCallbackMethod_GetObjects : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    ExperimentalWithRawCallbackMethod_GetObject() {
+    ExperimentalWithRawCallbackMethod_GetObjects() {
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
       ::grpc::Service::
     #else
@@ -235,55 +235,55 @@ class RemoteObjectShare final {
     #else
                    ::grpc::experimental::CallbackServerContext*
     #endif
-                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetObject(context, request, response); }));
+                     context, const ::grpc::ByteBuffer* request, ::grpc::ByteBuffer* response) { return this->GetObjects(context, request, response); }));
     }
-    ~ExperimentalWithRawCallbackMethod_GetObject() override {
+    ~ExperimentalWithRawCallbackMethod_GetObjects() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable synchronous version of this method
-    ::grpc::Status GetObject(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/) override {
+    ::grpc::Status GetObjects(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     #ifdef GRPC_CALLBACK_API_NONEXPERIMENTAL
-    virtual ::grpc::ServerUnaryReactor* GetObject(
+    virtual ::grpc::ServerUnaryReactor* GetObjects(
       ::grpc::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
     #else
-    virtual ::grpc::experimental::ServerUnaryReactor* GetObject(
+    virtual ::grpc::experimental::ServerUnaryReactor* GetObjects(
       ::grpc::experimental::CallbackServerContext* /*context*/, const ::grpc::ByteBuffer* /*request*/, ::grpc::ByteBuffer* /*response*/)
     #endif
       { return nullptr; }
   };
   template <class BaseClass>
-  class WithStreamedUnaryMethod_GetObject : public BaseClass {
+  class WithStreamedUnaryMethod_GetObjects : public BaseClass {
    private:
     void BaseClassMustBeDerivedFromService(const Service* /*service*/) {}
    public:
-    WithStreamedUnaryMethod_GetObject() {
+    WithStreamedUnaryMethod_GetObjects() {
       ::grpc::Service::MarkMethodStreamed(0,
         new ::grpc::internal::StreamedUnaryHandler<
-          ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails>(
+          ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList>(
             [this](::grpc::ServerContext* context,
                    ::grpc::ServerUnaryStreamer<
-                     ::plasmaRPC::ObjectID, ::plasmaRPC::ObjectDetails>* streamer) {
-                       return this->StreamedGetObject(context,
+                     ::plasmaRPC::ObjectIDs, ::plasmaRPC::ObjectDetailsList>* streamer) {
+                       return this->StreamedGetObjects(context,
                          streamer);
                   }));
     }
-    ~WithStreamedUnaryMethod_GetObject() override {
+    ~WithStreamedUnaryMethod_GetObjects() override {
       BaseClassMustBeDerivedFromService(this);
     }
     // disable regular version of this method
-    ::grpc::Status GetObject(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectID* /*request*/, ::plasmaRPC::ObjectDetails* /*response*/) override {
+    ::grpc::Status GetObjects(::grpc::ServerContext* /*context*/, const ::plasmaRPC::ObjectIDs* /*request*/, ::plasmaRPC::ObjectDetailsList* /*response*/) override {
       abort();
       return ::grpc::Status(::grpc::StatusCode::UNIMPLEMENTED, "");
     }
     // replace default version of method with streamed unary
-    virtual ::grpc::Status StreamedGetObject(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::plasmaRPC::ObjectID,::plasmaRPC::ObjectDetails>* server_unary_streamer) = 0;
+    virtual ::grpc::Status StreamedGetObjects(::grpc::ServerContext* context, ::grpc::ServerUnaryStreamer< ::plasmaRPC::ObjectIDs,::plasmaRPC::ObjectDetailsList>* server_unary_streamer) = 0;
   };
-  typedef WithStreamedUnaryMethod_GetObject<Service > StreamedUnaryService;
+  typedef WithStreamedUnaryMethod_GetObjects<Service > StreamedUnaryService;
   typedef Service SplitStreamedService;
-  typedef WithStreamedUnaryMethod_GetObject<Service > StreamedService;
+  typedef WithStreamedUnaryMethod_GetObjects<Service > StreamedService;
 };
 
 }  // namespace plasmaRPC

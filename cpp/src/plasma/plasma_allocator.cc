@@ -33,7 +33,7 @@ void dlfree(void* mem);
 int64_t PlasmaAllocator::footprint_limit_ = 0;
 int64_t PlasmaAllocator::allocated_ = 0;
 void* PlasmaAllocator::base_pointer_ = nullptr;
-std::map<size_t, uint64_t> PlasmaAllocator::available_regions_;
+std::multimap<size_t, uint64_t> PlasmaAllocator::available_regions_;
 int64_t PlasmaAllocator::fd_ = 0;
 
 void PlasmaAllocator::Init(int64_t fd, void* base_pointer) {
@@ -56,7 +56,7 @@ void* PlasmaAllocator::Memalign(size_t alignment, size_t bytes, int* fd, int64_t
   if (*offset == -1) {
     return nullptr;
   }
-  ARROW_LOG(INFO) << "Allocating " << bytes << " bytes of memory at " << *offset;
+  ARROW_LOG(DEBUG) << "Allocating " << bytes << " bytes of memory at " << *offset;
   *map_size = bytes;
   *fd = fd_;
   allocated_ += bytes;
@@ -84,7 +84,7 @@ void PlasmaAllocator::Free(void* mem, size_t bytes) {
   end = begin + bytes;
   offset = begin;
   size = bytes;
-  ARROW_LOG(INFO) << "Freeing " << bytes << " bytes of memory at " << mem << ", offset:" << offset;
+  ARROW_LOG(DEBUG) << "Freeing " << bytes << " bytes of memory at " << mem << ", offset:" << offset;
   for (auto it = available_regions_.begin(); it != available_regions_.end(); it++) {
     regSize = it->first;
     regOffset = it->second;

@@ -131,7 +131,7 @@ PlasmaStore::PlasmaStore(EventLoop* loop, std::string directory, bool hugepages_
   rpc_thread_ = std::thread(RunRpcServer, std::ref(rpc_service_), std::ref(local_address));
   rpc_thread_.detach();
 
-  sleep(3);
+  sleep(20);
   
   rpc_client_ = 
         RpcClient(grpc::CreateChannel(remote_address, grpc::InsecureChannelCredentials()));
@@ -192,8 +192,8 @@ uint8_t* PlasmaStore::AllocateMemory(size_t size, bool evict_if_full, int* fd,
     // plasma_client.cc). Note that even though this pointer is 64-byte aligned,
     // it is not guaranteed that the corresponding pointer in the client will be
     // 64-byte aligned, but in practice it often will be.
-    pointer = reinterpret_cast<uint8_t*>(PlasmaAllocator::Memalign(kBlockSize, size, fd, map_size, offset));
-    ARROW_LOG(INFO) << "Object ptr address: " << static_cast<void*>(pointer);
+    pointer = reinterpret_cast<uint8_t*>(
+                PlasmaAllocator::Memalign(kBlockSize, size, fd, map_size, offset));
     if (pointer || !evict_if_full) {
       // If we manage to allocate the memory, return the pointer. If we cannot
       // allocate the space, but we are also not allowed to evict anything to
@@ -477,6 +477,7 @@ void PlasmaStore::ProcessGetRequest(Client* client,
                                     int64_t timeout_ms) {
   // Create a get request for this object.
   auto get_req = new GetRequest(client, object_ids);
+  std::vector<ObjectID> check_remote_ids;
   std::vector<ObjectID> evicted_ids;
   std::vector<ObjectTableEntry*> evicted_entries;
   for (auto object_id : object_ids) {
@@ -518,27 +519,33 @@ void PlasmaStore::ProcessGetRequest(Client* client,
         entry->state = ObjectState::PLASMA_EVICTED;
       }
     } else {
-      plasmaRPC::ObjectDetails remote_entry = rpc_client_.GetObject(object_id);
-      if (remote_entry.status() == plasmaRPC::ObjectDetails::OK) {
-        PlasmaObject object;
-        auto rpc_object = remote_entry.object();
-        object.data_offset = rpc_object.data_offset();
-        object.metadata_offset = rpc_object.metadata_offset();
-        object.data_size = rpc_object.data_size();
-        object.metadata_size = rpc_object.metadata_size();
-        object.device_num = rpc_object.device_num();
-        // Mark remote object with store_fd = -1, in accordance with Client::MmapRemoteMemory
-        object.store_fd = -1;
-        get_req->objects[object_id] = object;
-        get_req->num_satisfied += 1;
-      } else {
-        // Add a placeholder plasma object to the get request to indicate that the
-        // object is not present. This will be parsed by the client. We set the
-        // data size to -1 to indicate that the object is not present.
-        get_req->objects[object_id].data_size = -1;
-        // Add the get request to the relevant data structures.
-        object_get_requests_[object_id].push_back(get_req);
-      }
+      check_remote_ids.push_back(object_id);
+    }
+  }
+
+  plasmaRPC::ObjectDetailsList remote_entries = rpc_client_.GetObjects(check_remote_ids);
+  for (uint i = 0; i < check_remote_ids.size(); i++) {
+    ObjectID object_id = check_remote_ids[i];
+    auto remote_entry = remote_entries.mutable_objects_details(i);
+    if (remote_entry->status() == plasmaRPC::ObjectDetails::OK) {
+      PlasmaObject object;
+      auto rpc_object = remote_entry->object();
+      object.data_offset = rpc_object.data_offset();
+      object.metadata_offset = rpc_object.metadata_offset();
+      object.data_size = rpc_object.data_size();
+      object.metadata_size = rpc_object.metadata_size();
+      object.device_num = rpc_object.device_num();
+      // Mark remote object with store_fd = -1, in accordance with Client::MmapRemoteMemory
+      object.store_fd = -1;
+      get_req->objects[object_id] = object;
+      get_req->num_satisfied += 1;
+    } else {
+      // Add a placeholder plasma object to the get request to indicate that the
+      // object is not present. This will be parsed by the client. We set the
+      // data size to -1 to indicate that the object is not present.
+      get_req->objects[object_id].data_size = -1;
+      // Add the get request to the relevant data structures.
+      object_get_requests_[object_id].push_back(get_req);
     }
   }
 
@@ -618,13 +625,13 @@ int PlasmaStore::RemoveFromClientObjectIds(const ObjectID& object_id,
 
 void PlasmaStore::EraseFromObjectTable(const ObjectID& object_id) {
   std::lock_guard<std::mutex> lock(mutex_);
-  auto& object = store_info_.objects[object_id];
-  auto buff_size = object->data_size + object->metadata_size;
-  if (object->device_num == 0) {
-    PlasmaAllocator::Free(object->pointer, buff_size);
+  auto entry = GetObjectTableEntry(&store_info_, object_id);
+  auto buff_size = entry->data_size + entry->metadata_size;
+  if (entry->device_num == 0) {
+    PlasmaAllocator::Free(entry->pointer + entry->offset, buff_size);
   } else {
 #ifdef PLASMA_CUDA
-    ARROW_CHECK_OK(FreeCudaMemory(object->device_num, buff_size, object->pointer));
+    ARROW_CHECK_OK(FreeCudaMemory(entry->device_num, buff_size, entry->pointer));
 #endif
   }
   store_info_.objects.erase(object_id);
@@ -639,8 +646,8 @@ void PlasmaStore::ReleaseObject(const ObjectID& object_id, Client* client) {
 
 bool PlasmaStore::ObjectExists(const ObjectID& object_id) {
   return GetObjectTableEntry(&store_info_, object_id) ||
-            rpc_client_.GetObject(object_id).status() !=
-                    plasmaRPC::ObjectDetails::MISSING;
+        rpc_client_.GetObject(object_id).status() !=
+                plasmaRPC::ObjectDetails::MISSING;
 }
 
 // Check if an object is present.
@@ -788,7 +795,7 @@ void PlasmaStore::EvictObjects(const std::vector<ObjectID>& object_ids) {
     ARROW_CHECK_OK(external_store_->Put(object_ids, evicted_object_data));
     std::lock_guard<std::mutex> lock(mutex_);
     for (auto entry : evicted_entries) {
-      PlasmaAllocator::Free(entry->pointer, entry->data_size + entry->metadata_size);
+      PlasmaAllocator::Free(entry->pointer + entry->offset, entry->data_size + entry->metadata_size);
       entry->pointer = nullptr;
       entry->state = ObjectState::PLASMA_EVICTED;
     }
@@ -1297,8 +1304,8 @@ DEFINE_string(s, "",
               "socket name where the Plasma store will listen for requests, required");
 DEFINE_string(m, "", "amount of memory in bytes to use for Plasma store, required");
 DEFINE_string(v, "", "local shared memory location, required");
-DEFINE_string(w, "", "remote shared memory location, required");
-DEFINE_bool(r, false, "gRPC; connect remote first, listen second");
+DEFINE_string(l, "", "gRPC; local listening address (ip:port), required");
+DEFINE_string(r, "", "gRPC; address of remote plasma store (ip:port), required");
 
 int main(int argc, char* argv[]) {
   ArrowLog::StartArrowLog(argv[0], ArrowLogLevel::ARROW_INFO);
@@ -1312,7 +1319,7 @@ int main(int argc, char* argv[]) {
   std::string plasma_directory;
   std::string external_store_endpoint;
   // Local and remote disaggregated memory files.
-  std::string mem_location, remote_mem_location;
+  std::string mem_location;
   bool hugepages_enabled = false;
   int64_t system_memory = -1;
 
@@ -1341,7 +1348,6 @@ int main(int argc, char* argv[]) {
 
   // Initialize shared memory at specified location.
   mem_location = FLAGS_v;
-  remote_mem_location = FLAGS_w;
   ARROW_LOG(INFO) << "Initializing shared memory at location " << mem_location;
   int fd = open(mem_location.c_str(), O_RDWR | O_SYNC);
   void* base_pointer = mmap(0, plasma::PlasmaAllocator::GetFootprintLimit(), 
@@ -1415,15 +1421,8 @@ int main(int argc, char* argv[]) {
     ARROW_CHECK_OK(external_store->Connect(external_store_endpoint));
   }
 
-  std::string local_address;
-  std::string remote_address;
-  if (FLAGS_r) {
-    local_address = "0.0.0.0:50051";///
-    remote_address = "localhost:50052";///
-  } else {
-    local_address = "0.0.0.0:50052";///
-    remote_address = "localhost:50051";///
-  }
+  std::string local_address = FLAGS_l;
+  std::string remote_address = FLAGS_r;
 
   ARROW_LOG(DEBUG) << "starting server listening on " << socket_name;
   plasma::StartServer(socket_name, plasma_directory, hugepages_enabled, external_store,

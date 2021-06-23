@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <mutex>
 
 #include <plasma/plasma.h>
@@ -16,8 +17,8 @@ class RpcServiceImpl : public plasmaRPC::RemoteObjectShare::Service {
   RpcServiceImpl(PlasmaStoreInfo* plasma_store_info, std::mutex* mutex);
 
  private:
-  grpc::Status GetObject(grpc::ServerContext* context, const plasmaRPC::ObjectID* request,
-                  plasmaRPC::ObjectDetails* response) override;
+  grpc::Status GetObjects(grpc::ServerContext* context, const plasmaRPC::ObjectIDs* request,
+                  plasmaRPC::ObjectDetailsList* response) override;
 
   // std::unique_ptr<PlasmaStoreInfo> plasma_store_info_;
   PlasmaStoreInfo* plasma_store_info_;
@@ -31,7 +32,10 @@ class RpcClient {
 
   // Assembles the client's payload, sends it and presents the response back
   // from the server.
-  plasmaRPC::ObjectDetails GetObject(const ObjectID& object_id);
+  plasmaRPC::ObjectDetailsList GetObjects(std::vector<ObjectID> object_ids);
+  plasmaRPC::ObjectDetails GetObject(const ObjectID& object_id) {
+    return *GetObjects({object_id}).mutable_objects_details(0);
+  }
 
  private:
   std::unique_ptr<plasmaRPC::RemoteObjectShare::Stub> stub_;

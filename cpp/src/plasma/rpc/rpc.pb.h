@@ -47,7 +47,7 @@ struct TableStruct_rpc_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[3]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -59,16 +59,20 @@ namespace plasmaRPC {
 class ObjectDetails;
 struct ObjectDetailsDefaultTypeInternal;
 extern ObjectDetailsDefaultTypeInternal _ObjectDetails_default_instance_;
-class ObjectID;
-struct ObjectIDDefaultTypeInternal;
-extern ObjectIDDefaultTypeInternal _ObjectID_default_instance_;
+class ObjectDetailsList;
+struct ObjectDetailsListDefaultTypeInternal;
+extern ObjectDetailsListDefaultTypeInternal _ObjectDetailsList_default_instance_;
+class ObjectIDs;
+struct ObjectIDsDefaultTypeInternal;
+extern ObjectIDsDefaultTypeInternal _ObjectIDs_default_instance_;
 class PlasmaObject;
 struct PlasmaObjectDefaultTypeInternal;
 extern PlasmaObjectDefaultTypeInternal _PlasmaObject_default_instance_;
 }  // namespace plasmaRPC
 PROTOBUF_NAMESPACE_OPEN
 template<> ::plasmaRPC::ObjectDetails* Arena::CreateMaybeMessage<::plasmaRPC::ObjectDetails>(Arena*);
-template<> ::plasmaRPC::ObjectID* Arena::CreateMaybeMessage<::plasmaRPC::ObjectID>(Arena*);
+template<> ::plasmaRPC::ObjectDetailsList* Arena::CreateMaybeMessage<::plasmaRPC::ObjectDetailsList>(Arena*);
+template<> ::plasmaRPC::ObjectIDs* Arena::CreateMaybeMessage<::plasmaRPC::ObjectIDs>(Arena*);
 template<> ::plasmaRPC::PlasmaObject* Arena::CreateMaybeMessage<::plasmaRPC::PlasmaObject>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 namespace plasmaRPC {
@@ -102,24 +106,24 @@ inline bool ObjectDetails_Status_Parse(
 }
 // ===================================================================
 
-class ObjectID PROTOBUF_FINAL :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:plasmaRPC.ObjectID) */ {
+class ObjectIDs PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:plasmaRPC.ObjectIDs) */ {
  public:
-  inline ObjectID() : ObjectID(nullptr) {}
-  virtual ~ObjectID();
-  explicit constexpr ObjectID(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline ObjectIDs() : ObjectIDs(nullptr) {}
+  virtual ~ObjectIDs();
+  explicit constexpr ObjectIDs(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  ObjectID(const ObjectID& from);
-  ObjectID(ObjectID&& from) noexcept
-    : ObjectID() {
+  ObjectIDs(const ObjectIDs& from);
+  ObjectIDs(ObjectIDs&& from) noexcept
+    : ObjectIDs() {
     *this = ::std::move(from);
   }
 
-  inline ObjectID& operator=(const ObjectID& from) {
+  inline ObjectIDs& operator=(const ObjectIDs& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ObjectID& operator=(ObjectID&& from) noexcept {
+  inline ObjectIDs& operator=(ObjectIDs&& from) noexcept {
     if (GetArena() == from.GetArena()) {
       if (this != &from) InternalSwap(&from);
     } else {
@@ -137,20 +141,20 @@ class ObjectID PROTOBUF_FINAL :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return GetMetadataStatic().reflection;
   }
-  static const ObjectID& default_instance() {
+  static const ObjectIDs& default_instance() {
     return *internal_default_instance();
   }
-  static inline const ObjectID* internal_default_instance() {
-    return reinterpret_cast<const ObjectID*>(
-               &_ObjectID_default_instance_);
+  static inline const ObjectIDs* internal_default_instance() {
+    return reinterpret_cast<const ObjectIDs*>(
+               &_ObjectIDs_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     0;
 
-  friend void swap(ObjectID& a, ObjectID& b) {
+  friend void swap(ObjectIDs& a, ObjectIDs& b) {
     a.Swap(&b);
   }
-  inline void Swap(ObjectID* other) {
+  inline void Swap(ObjectIDs* other) {
     if (other == this) return;
     if (GetArena() == other->GetArena()) {
       InternalSwap(other);
@@ -158,7 +162,7 @@ class ObjectID PROTOBUF_FINAL :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(ObjectID* other) {
+  void UnsafeArenaSwap(ObjectIDs* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetArena() == other->GetArena());
     InternalSwap(other);
@@ -166,17 +170,17 @@ class ObjectID PROTOBUF_FINAL :
 
   // implements Message ----------------------------------------------
 
-  inline ObjectID* New() const final {
-    return CreateMaybeMessage<ObjectID>(nullptr);
+  inline ObjectIDs* New() const final {
+    return CreateMaybeMessage<ObjectIDs>(nullptr);
   }
 
-  ObjectID* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
-    return CreateMaybeMessage<ObjectID>(arena);
+  ObjectIDs* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ObjectIDs>(arena);
   }
   void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
   void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
-  void CopyFrom(const ObjectID& from);
-  void MergeFrom(const ObjectID& from);
+  void CopyFrom(const ObjectIDs& from);
+  void MergeFrom(const ObjectIDs& from);
   PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
   bool IsInitialized() const final;
 
@@ -190,13 +194,13 @@ class ObjectID PROTOBUF_FINAL :
   inline void SharedCtor();
   inline void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(ObjectID* other);
+  void InternalSwap(ObjectIDs* other);
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "plasmaRPC.ObjectID";
+    return "plasmaRPC.ObjectIDs";
   }
   protected:
-  explicit ObjectID(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  explicit ObjectIDs(::PROTOBUF_NAMESPACE_ID::Arena* arena);
   private:
   static void ArenaDtor(void* object);
   inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
@@ -215,32 +219,40 @@ class ObjectID PROTOBUF_FINAL :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kIdFieldNumber = 1,
+    kIdsFieldNumber = 1,
   };
-  // string id = 1;
-  void clear_id();
-  const std::string& id() const;
-  void set_id(const std::string& value);
-  void set_id(std::string&& value);
-  void set_id(const char* value);
-  void set_id(const char* value, size_t size);
-  std::string* mutable_id();
-  std::string* release_id();
-  void set_allocated_id(std::string* id);
+  // repeated string ids = 1;
+  int ids_size() const;
   private:
-  const std::string& _internal_id() const;
-  void _internal_set_id(const std::string& value);
-  std::string* _internal_mutable_id();
+  int _internal_ids_size() const;
+  public:
+  void clear_ids();
+  const std::string& ids(int index) const;
+  std::string* mutable_ids(int index);
+  void set_ids(int index, const std::string& value);
+  void set_ids(int index, std::string&& value);
+  void set_ids(int index, const char* value);
+  void set_ids(int index, const char* value, size_t size);
+  std::string* add_ids();
+  void add_ids(const std::string& value);
+  void add_ids(std::string&& value);
+  void add_ids(const char* value);
+  void add_ids(const char* value, size_t size);
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& ids() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_ids();
+  private:
+  const std::string& _internal_ids(int index) const;
+  std::string* _internal_add_ids();
   public:
 
-  // @@protoc_insertion_point(class_scope:plasmaRPC.ObjectID)
+  // @@protoc_insertion_point(class_scope:plasmaRPC.ObjectIDs)
  private:
   class _Internal;
 
   template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> ids_;
   mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   friend struct ::TableStruct_rpc_2eproto;
 };
@@ -617,6 +629,152 @@ class ObjectDetails PROTOBUF_FINAL :
   int status_;
   friend struct ::TableStruct_rpc_2eproto;
 };
+// -------------------------------------------------------------------
+
+class ObjectDetailsList PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:plasmaRPC.ObjectDetailsList) */ {
+ public:
+  inline ObjectDetailsList() : ObjectDetailsList(nullptr) {}
+  virtual ~ObjectDetailsList();
+  explicit constexpr ObjectDetailsList(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  ObjectDetailsList(const ObjectDetailsList& from);
+  ObjectDetailsList(ObjectDetailsList&& from) noexcept
+    : ObjectDetailsList() {
+    *this = ::std::move(from);
+  }
+
+  inline ObjectDetailsList& operator=(const ObjectDetailsList& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline ObjectDetailsList& operator=(ObjectDetailsList&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const ObjectDetailsList& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const ObjectDetailsList* internal_default_instance() {
+    return reinterpret_cast<const ObjectDetailsList*>(
+               &_ObjectDetailsList_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    3;
+
+  friend void swap(ObjectDetailsList& a, ObjectDetailsList& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(ObjectDetailsList* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(ObjectDetailsList* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline ObjectDetailsList* New() const final {
+    return CreateMaybeMessage<ObjectDetailsList>(nullptr);
+  }
+
+  ObjectDetailsList* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<ObjectDetailsList>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const ObjectDetailsList& from);
+  void MergeFrom(const ObjectDetailsList& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(ObjectDetailsList* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "plasmaRPC.ObjectDetailsList";
+  }
+  protected:
+  explicit ObjectDetailsList(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    return ::descriptor_table_rpc_2eproto_metadata_getter(kIndexInFileMessages);
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kObjectsDetailsFieldNumber = 1,
+  };
+  // repeated .plasmaRPC.ObjectDetails objects_details = 1;
+  int objects_details_size() const;
+  private:
+  int _internal_objects_details_size() const;
+  public:
+  void clear_objects_details();
+  ::plasmaRPC::ObjectDetails* mutable_objects_details(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::plasmaRPC::ObjectDetails >*
+      mutable_objects_details();
+  private:
+  const ::plasmaRPC::ObjectDetails& _internal_objects_details(int index) const;
+  ::plasmaRPC::ObjectDetails* _internal_add_objects_details();
+  public:
+  const ::plasmaRPC::ObjectDetails& objects_details(int index) const;
+  ::plasmaRPC::ObjectDetails* add_objects_details();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::plasmaRPC::ObjectDetails >&
+      objects_details() const;
+
+  // @@protoc_insertion_point(class_scope:plasmaRPC.ObjectDetailsList)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::plasmaRPC::ObjectDetails > objects_details_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  friend struct ::TableStruct_rpc_2eproto;
+};
 // ===================================================================
 
 
@@ -626,67 +784,80 @@ class ObjectDetails PROTOBUF_FINAL :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// ObjectID
+// ObjectIDs
 
-// string id = 1;
-inline void ObjectID::clear_id() {
-  id_.ClearToEmpty();
+// repeated string ids = 1;
+inline int ObjectIDs::_internal_ids_size() const {
+  return ids_.size();
 }
-inline const std::string& ObjectID::id() const {
-  // @@protoc_insertion_point(field_get:plasmaRPC.ObjectID.id)
-  return _internal_id();
+inline int ObjectIDs::ids_size() const {
+  return _internal_ids_size();
 }
-inline void ObjectID::set_id(const std::string& value) {
-  _internal_set_id(value);
-  // @@protoc_insertion_point(field_set:plasmaRPC.ObjectID.id)
+inline void ObjectIDs::clear_ids() {
+  ids_.Clear();
 }
-inline std::string* ObjectID::mutable_id() {
-  // @@protoc_insertion_point(field_mutable:plasmaRPC.ObjectID.id)
-  return _internal_mutable_id();
+inline std::string* ObjectIDs::add_ids() {
+  // @@protoc_insertion_point(field_add_mutable:plasmaRPC.ObjectIDs.ids)
+  return _internal_add_ids();
 }
-inline const std::string& ObjectID::_internal_id() const {
-  return id_.Get();
+inline const std::string& ObjectIDs::_internal_ids(int index) const {
+  return ids_.Get(index);
 }
-inline void ObjectID::_internal_set_id(const std::string& value) {
-  
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArena());
+inline const std::string& ObjectIDs::ids(int index) const {
+  // @@protoc_insertion_point(field_get:plasmaRPC.ObjectIDs.ids)
+  return _internal_ids(index);
 }
-inline void ObjectID::set_id(std::string&& value) {
-  
-  id_.Set(
-    ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::move(value), GetArena());
-  // @@protoc_insertion_point(field_set_rvalue:plasmaRPC.ObjectID.id)
+inline std::string* ObjectIDs::mutable_ids(int index) {
+  // @@protoc_insertion_point(field_mutable:plasmaRPC.ObjectIDs.ids)
+  return ids_.Mutable(index);
 }
-inline void ObjectID::set_id(const char* value) {
+inline void ObjectIDs::set_ids(int index, const std::string& value) {
+  // @@protoc_insertion_point(field_set:plasmaRPC.ObjectIDs.ids)
+  ids_.Mutable(index)->assign(value);
+}
+inline void ObjectIDs::set_ids(int index, std::string&& value) {
+  // @@protoc_insertion_point(field_set:plasmaRPC.ObjectIDs.ids)
+  ids_.Mutable(index)->assign(std::move(value));
+}
+inline void ObjectIDs::set_ids(int index, const char* value) {
   GOOGLE_DCHECK(value != nullptr);
-  
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(value), GetArena());
-  // @@protoc_insertion_point(field_set_char:plasmaRPC.ObjectID.id)
+  ids_.Mutable(index)->assign(value);
+  // @@protoc_insertion_point(field_set_char:plasmaRPC.ObjectIDs.ids)
 }
-inline void ObjectID::set_id(const char* value,
-    size_t size) {
-  
-  id_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, ::std::string(
-      reinterpret_cast<const char*>(value), size), GetArena());
-  // @@protoc_insertion_point(field_set_pointer:plasmaRPC.ObjectID.id)
+inline void ObjectIDs::set_ids(int index, const char* value, size_t size) {
+  ids_.Mutable(index)->assign(
+    reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_set_pointer:plasmaRPC.ObjectIDs.ids)
 }
-inline std::string* ObjectID::_internal_mutable_id() {
-  
-  return id_.Mutable(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, GetArena());
+inline std::string* ObjectIDs::_internal_add_ids() {
+  return ids_.Add();
 }
-inline std::string* ObjectID::release_id() {
-  // @@protoc_insertion_point(field_release:plasmaRPC.ObjectID.id)
-  return id_.Release(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+inline void ObjectIDs::add_ids(const std::string& value) {
+  ids_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add:plasmaRPC.ObjectIDs.ids)
 }
-inline void ObjectID::set_allocated_id(std::string* id) {
-  if (id != nullptr) {
-    
-  } else {
-    
-  }
-  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id,
-      GetArena());
-  // @@protoc_insertion_point(field_set_allocated:plasmaRPC.ObjectID.id)
+inline void ObjectIDs::add_ids(std::string&& value) {
+  ids_.Add(std::move(value));
+  // @@protoc_insertion_point(field_add:plasmaRPC.ObjectIDs.ids)
+}
+inline void ObjectIDs::add_ids(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  ids_.Add()->assign(value);
+  // @@protoc_insertion_point(field_add_char:plasmaRPC.ObjectIDs.ids)
+}
+inline void ObjectIDs::add_ids(const char* value, size_t size) {
+  ids_.Add()->assign(reinterpret_cast<const char*>(value), size);
+  // @@protoc_insertion_point(field_add_pointer:plasmaRPC.ObjectIDs.ids)
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>&
+ObjectIDs::ids() const {
+  // @@protoc_insertion_point(field_list:plasmaRPC.ObjectIDs.ids)
+  return ids_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
+ObjectIDs::mutable_ids() {
+  // @@protoc_insertion_point(field_mutable_list:plasmaRPC.ObjectIDs.ids)
+  return &ids_;
 }
 
 // -------------------------------------------------------------------
@@ -903,9 +1074,54 @@ inline void ObjectDetails::set_allocated_object(::plasmaRPC::PlasmaObject* objec
   // @@protoc_insertion_point(field_set_allocated:plasmaRPC.ObjectDetails.object)
 }
 
+// -------------------------------------------------------------------
+
+// ObjectDetailsList
+
+// repeated .plasmaRPC.ObjectDetails objects_details = 1;
+inline int ObjectDetailsList::_internal_objects_details_size() const {
+  return objects_details_.size();
+}
+inline int ObjectDetailsList::objects_details_size() const {
+  return _internal_objects_details_size();
+}
+inline void ObjectDetailsList::clear_objects_details() {
+  objects_details_.Clear();
+}
+inline ::plasmaRPC::ObjectDetails* ObjectDetailsList::mutable_objects_details(int index) {
+  // @@protoc_insertion_point(field_mutable:plasmaRPC.ObjectDetailsList.objects_details)
+  return objects_details_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::plasmaRPC::ObjectDetails >*
+ObjectDetailsList::mutable_objects_details() {
+  // @@protoc_insertion_point(field_mutable_list:plasmaRPC.ObjectDetailsList.objects_details)
+  return &objects_details_;
+}
+inline const ::plasmaRPC::ObjectDetails& ObjectDetailsList::_internal_objects_details(int index) const {
+  return objects_details_.Get(index);
+}
+inline const ::plasmaRPC::ObjectDetails& ObjectDetailsList::objects_details(int index) const {
+  // @@protoc_insertion_point(field_get:plasmaRPC.ObjectDetailsList.objects_details)
+  return _internal_objects_details(index);
+}
+inline ::plasmaRPC::ObjectDetails* ObjectDetailsList::_internal_add_objects_details() {
+  return objects_details_.Add();
+}
+inline ::plasmaRPC::ObjectDetails* ObjectDetailsList::add_objects_details() {
+  // @@protoc_insertion_point(field_add:plasmaRPC.ObjectDetailsList.objects_details)
+  return _internal_add_objects_details();
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::plasmaRPC::ObjectDetails >&
+ObjectDetailsList::objects_details() const {
+  // @@protoc_insertion_point(field_list:plasmaRPC.ObjectDetailsList.objects_details)
+  return objects_details_;
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------
