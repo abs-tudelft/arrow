@@ -523,29 +523,31 @@ void PlasmaStore::ProcessGetRequest(Client* client,
     }
   }
 
-  plasmaRPC::ObjectDetailsList remote_entries = rpc_client_.GetObjects(check_remote_ids);
-  for (uint i = 0; i < check_remote_ids.size(); i++) {
-    ObjectID object_id = check_remote_ids[i];
-    auto remote_entry = remote_entries.mutable_objects_details(i);
-    if (remote_entry->status() == plasmaRPC::ObjectDetails::OK) {
-      PlasmaObject object;
-      auto rpc_object = remote_entry->object();
-      object.data_offset = rpc_object.data_offset();
-      object.metadata_offset = rpc_object.metadata_offset();
-      object.data_size = rpc_object.data_size();
-      object.metadata_size = rpc_object.metadata_size();
-      object.device_num = rpc_object.device_num();
-      // Mark remote object with store_fd = -1, in accordance with Client::MmapRemoteMemory
-      object.store_fd = -1;
-      get_req->objects[object_id] = object;
-      get_req->num_satisfied += 1;
-    } else {
-      // Add a placeholder plasma object to the get request to indicate that the
-      // object is not present. This will be parsed by the client. We set the
-      // data size to -1 to indicate that the object is not present.
-      get_req->objects[object_id].data_size = -1;
-      // Add the get request to the relevant data structures.
-      object_get_requests_[object_id].push_back(get_req);
+  if (!check_remote_ids.empty()) {
+    plasmaRPC::ObjectDetailsList remote_entries = rpc_client_.GetObjects(check_remote_ids);
+    for (uint i = 0; i < check_remote_ids.size(); i++) {
+      ObjectID object_id = check_remote_ids[i];
+      auto remote_entry = remote_entries.mutable_objects_details(i);
+      if (remote_entry->status() == plasmaRPC::ObjectDetails::OK) {
+        PlasmaObject object;
+        auto rpc_object = remote_entry->object();
+        object.data_offset = rpc_object.data_offset();
+        object.metadata_offset = rpc_object.metadata_offset();
+        object.data_size = rpc_object.data_size();
+        object.metadata_size = rpc_object.metadata_size();
+        object.device_num = rpc_object.device_num();
+        // Mark remote object with store_fd = -1, in accordance with Client::MmapRemoteMemory
+        object.store_fd = -1;
+        get_req->objects[object_id] = object;
+        get_req->num_satisfied += 1;
+      } else {
+        // Add a placeholder plasma object to the get request to indicate that the
+        // object is not present. This will be parsed by the client. We set the
+        // data size to -1 to indicate that the object is not present.
+        get_req->objects[object_id].data_size = -1;
+        // Add the get request to the relevant data structures.
+        object_get_requests_[object_id].push_back(get_req);
+      }
     }
   }
 
@@ -674,18 +676,19 @@ void PlasmaStore::SealObjects(const std::vector<ObjectID>& object_ids,
 
   ARROW_LOG(DEBUG) << "sealing " << object_ids.size() << " objects";
   for (size_t i = 0; i < object_ids.size(); ++i) {
-    std::lock_guard<std::mutex> lock(mutex_);
     ObjectInfoT object_info;
     auto entry = GetObjectTableEntry(&store_info_, object_ids[i]);
     ARROW_CHECK(entry != nullptr);
     ARROW_CHECK(entry->state == ObjectState::PLASMA_CREATED);
-    // Set the state of object to SEALED.
-    entry->state = ObjectState::PLASMA_SEALED;
-    // Set the object digest.
-    std::memcpy(&entry->digest[0], digests[i].c_str(), kDigestSize);
-    // Set object construction duration.
-    entry->construct_duration = std::time(nullptr) - entry->create_time;
-
+    {
+      std::lock_guard<std::mutex> lock(mutex_);
+      // Set the state of object to SEALED.
+      entry->state = ObjectState::PLASMA_SEALED;
+      // Set the object digest.
+      std::memcpy(&entry->digest[0], digests[i].c_str(), kDigestSize);
+      // Set object construction duration.
+      entry->construct_duration = std::time(nullptr) - entry->create_time;
+    }
     object_info.object_id = object_ids[i].binary();
     object_info.data_size = entry->data_size;
     object_info.metadata_size = entry->metadata_size;
