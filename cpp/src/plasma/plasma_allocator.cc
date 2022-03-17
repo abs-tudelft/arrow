@@ -19,6 +19,9 @@
 
 #include "plasma/malloc.h"
 #include "plasma/plasma_allocator.h"
+#include <sys/mman.h>
+#include <fcntl.h>
+
 
 namespace plasma {
 
@@ -29,19 +32,72 @@ void dlfree(void* mem);
 
 int64_t PlasmaAllocator::footprint_limit_ = 0;
 int64_t PlasmaAllocator::allocated_ = 0;
+void* PlasmaAllocator::base_pointer_ = nullptr;
+std::multimap<size_t, uint64_t> PlasmaAllocator::available_regions_;
+int64_t PlasmaAllocator::fd_ = 0;
 
-void* PlasmaAllocator::Memalign(size_t alignment, size_t bytes) {
+void PlasmaAllocator::Init(int64_t fd, void* base_pointer) {
+  fd_ = fd;
+  base_pointer_ = base_pointer;
+  ARROW_CHECK(base_pointer_);
+  MmapRecord& record = mmap_records[base_pointer_];
+  record.fd = fd_;
+  record.size = footprint_limit_;
+  available_regions_.emplace(footprint_limit_, 0);
+  ARROW_LOG(INFO) << "Base ptr at address: " << base_pointer_;
+  ARROW_LOG(INFO) << "Available memory: " << footprint_limit_ << "bytes";
+}
+
+void* PlasmaAllocator::Memalign(size_t alignment, size_t bytes, int* fd, int64_t* map_size, ptrdiff_t* offset) {
   if (allocated_ + static_cast<int64_t>(bytes) > footprint_limit_) {
     return nullptr;
   }
-  void* mem = dlmemalign(alignment, bytes);
-  ARROW_CHECK(mem);
+  *offset = FindRegion(bytes);
+  if (*offset == -1) {
+    return nullptr;
+  }
+  ARROW_LOG(DEBUG) << "Allocating " << bytes << " bytes of memory at " << *offset;
+  *map_size = bytes;
+  *fd = fd_;
   allocated_ += bytes;
-  return mem;
+  return base_pointer_;
+}
+
+int64_t PlasmaAllocator::FindRegion(size_t bytes) {
+  int64_t offset = -1;
+  auto it = available_regions_.lower_bound(bytes);
+  if (it == available_regions_.end()) {
+    return -1;
+  }
+  offset = it->second;
+  if (it->first > bytes) {
+    available_regions_.emplace(it->first - bytes, offset + bytes);
+  }
+  available_regions_.erase(it);
+  return offset;
 }
 
 void PlasmaAllocator::Free(void* mem, size_t bytes) {
-  dlfree(mem);
+  int64_t begin, end, offset, regOffset;
+  size_t size, regSize;
+  begin = static_cast<uint8_t*>(mem) - static_cast<uint8_t*>(base_pointer_);
+  end = begin + bytes;
+  offset = begin;
+  size = bytes;
+  ARROW_LOG(DEBUG) << "Freeing " << bytes << " bytes of memory at " << mem << ", offset:" << offset;
+  for (auto it = available_regions_.begin(); it != available_regions_.end(); it++) {
+    regSize = it->first;
+    regOffset = it->second;
+    if (regOffset == end) {
+      size += regSize;
+      available_regions_.erase(it);
+    } else if (regOffset + static_cast<int>(regSize) == begin) {
+      offset = regOffset;
+      size += regSize;
+      available_regions_.erase(it);
+    }
+  }
+  available_regions_.emplace(size, offset);
   allocated_ -= bytes;
 }
 

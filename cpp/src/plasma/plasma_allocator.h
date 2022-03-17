@@ -17,20 +17,26 @@
 
 #pragma once
 
+#include <plasma/malloc.h>
 #include <cstddef>
 #include <cstdint>
+#include <map>
 
 namespace plasma {
 
 class PlasmaAllocator {
  public:
+  static void Init(int64_t fd, void* base_pointer);
+
+  static int64_t FindRegion(size_t bytes);
+  
   /// Allocates size bytes and returns a pointer to the allocated memory. The
   /// memory address will be a multiple of alignment, which must be a power of two.
   ///
   /// \param alignment Memory alignment.
   /// \param bytes Number of bytes.
   /// \return Pointer to allocated memory.
-  static void* Memalign(size_t alignment, size_t bytes);
+  static void* Memalign(size_t alignment, size_t bytes, int* fd, int64_t* map_size, ptrdiff_t* offset);
 
   /// Frees the memory space pointed to by mem, which must have been returned by
   /// a previous call to Memalign()
@@ -56,6 +62,11 @@ class PlasmaAllocator {
  private:
   static int64_t allocated_;
   static int64_t footprint_limit_;
+  static void* base_pointer_;
+  static std::multimap<uint64_t, size_t> available_regions_;
+  static int64_t fd_;
 };
+
+extern std::unordered_map<void*, MmapRecord> mmap_records;
 
 }  // namespace plasma

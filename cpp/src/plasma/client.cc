@@ -31,6 +31,7 @@
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/un.h>
 #include <time.h>
@@ -270,6 +271,8 @@ class PlasmaClient::Impl : public std::enable_shared_from_this<PlasmaClient::Imp
 
   Status Disconnect();
 
+  Status MmapRemoteMemory(const std::string& file);
+
   std::string DebugString();
 
   bool IsInUse(const ObjectID& object_id);
@@ -315,7 +318,6 @@ class PlasmaClient::Impl : public std::enable_shared_from_this<PlasmaClient::Imp
 #ifdef PLASMA_CUDA
   arrow::Result<std::shared_ptr<CudaContext>> GetCudaContext(int device_number);
 #endif
-
   /// File descriptor of the Unix domain socket that connects to the store.
   int store_conn_;
   /// Table of dlmalloc buffer files that have been memory mapped so far. This
@@ -363,6 +365,16 @@ uint8_t* PlasmaClient::Impl::LookupMmappedFile(int store_fd_val) {
   auto entry = mmap_table_.find(store_fd_val);
   ARROW_CHECK(entry != mmap_table_.end());
   return entry->second->pointer();
+}
+
+Status PlasmaClient::Impl::MmapRemoteMemory(const std::string& file) {
+  int fd = open(file.c_str(), O_RDWR | O_SYNC);
+  // Find remote memory file size
+  struct stat stat_buf;
+  fstat(fd, &stat_buf);
+  // Mmap remote memory with fd = -1 in accordance with PlasmaStore::ProcessGetRequest
+  LookupOrMmap(fd, -1, stat_buf.st_size);
+  return Status::OK();
 }
 
 bool PlasmaClient::Impl::IsInUse(const ObjectID& object_id) {
@@ -1212,6 +1224,10 @@ Status PlasmaClient::DecodeNotifications(const uint8_t* buffer,
 }
 
 Status PlasmaClient::Disconnect() { return impl_->Disconnect(); }
+
+Status PlasmaClient::MmapRemoteMemory(const std::string& file) {
+  return impl_->MmapRemoteMemory(file);
+}
 
 std::string PlasmaClient::DebugString() { return impl_->DebugString(); }
 

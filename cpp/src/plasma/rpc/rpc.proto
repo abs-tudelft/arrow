@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package plasmaRPC;
+
+message ObjectIDs {
+  repeated string ids = 1;
+}
+
+message PlasmaObject {
+  uint64 data_offset = 2;
+  uint64 metadata_offset = 3;
+  uint64 data_size = 4;
+  uint64 metadata_size = 5;
+  uint32 device_num = 6;
+}
+
+message ObjectDetails {
+  Status status = 1;
+  optional PlasmaObject object = 2;
+
+  enum Status {
+    OK = 0;
+    MISSING = 1;
+    EVICTED = 2;
+    UNSEALED = 3;
+  }
+}
+
+message ObjectDetailsList {
+  repeated ObjectDetails objects_details = 1;
+}
+
+service RemoteObjectShare {
+  rpc GetObjects(ObjectIDs) returns (ObjectDetailsList);
+}
